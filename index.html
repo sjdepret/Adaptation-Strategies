@@ -8956,141 +8956,147 @@
 ]; // placeholder for now
 
     const dataBody = document.getElementById("dataBody");
-    const searchInput = document.getElementById("searchInput");
-    const adaptFilter = document.getElementById("adaptFilter");
-    const seHazardFilter = document.getElementById("seHazardFilter");
-    const swHazardFilter = document.getElementById("swHazardFilter");
-    const resourceFilter = document.getElementById("resourceFilter");
-    const countText = document.getElementById("countText");
+const searchInput = document.getElementById("searchInput");
+const adaptFilter = document.getElementById("adaptFilter");
+const seHazardFilter = document.getElementById("seHazardFilter");
+const swHazardFilter = document.getElementById("swHazardFilter");
+const resourceFilter = document.getElementById("resourceFilter");
+const countText = document.getElementById("countText");
 
-    function normalizeListField(value) {
-      if (!value) return [];
-      return String(value)
-        .split(/[;,]/)
-        .map(v => v.trim())
-        .filter(v => v.length > 0);
+// Turn any semi-structured list into a clean array
+function normalizeListField(value) {
+  if (!value) return [];
+  return String(value)
+    .split(/[;,]/)
+    .map(v => v.trim())
+    .filter(v => v.length > 0);
+}
+
+// Build dropdown filter options from RAW_DATA
+function buildFilterOptions() {
+  const adaptTypes = new Set();
+  const seHazards = new Set();
+  const swHazards = new Set();
+  const resourceTypes = new Set();
+
+  RAW_DATA.forEach(row => {
+    if (row.ADAPT_TYPE) adaptTypes.add(row.ADAPT_TYPE.trim());
+
+    normalizeListField(row.SE_HAZARDS).forEach(h => seHazards.add(h));
+    normalizeListField(row.SW_HAZARDS).forEach(h => swHazards.add(h));
+
+    if (row.RESOURCE_TYPE) {
+      normalizeListField(row.RESOURCE_TYPE).forEach(r => resourceTypes.add(r));
     }
+  });
 
-    function buildFilterOptions() {
-      const adaptTypes = new Set();
-      const seHazards = new Set();
-      const swHazards = new Set();
-      const resourceTypes = new Set();
+  function fillSelect(selectElem, values) {
+    // keep the first option (the “All …” one)
+    const first = selectElem.firstElementChild;
+    selectElem.innerHTML = "";
+    if (first) selectElem.appendChild(first);
 
-      RAW_DATA.forEach(row => {
-        if (row.ADAPT_TYPE) adaptTypes.add(row.ADAPT_TYPE.trim());
-
-        normalizeListField(row.SE_HAZARDS).forEach(h => seHazards.add(h));
-        normalizeListField(row.SW_HAZARDS).forEach(h => swHazards.add(h));
-
-        if (row.RESOURCE_TYPE) {
-          normalizeListField(row.RESOURCE_TYPE).forEach(r => resourceTypes.add(r));
-        }
-      });
-
-      function fillSelect(selectElem, values) {
-        [...values].sort().forEach(v => {
-          const opt = document.createElement("option");
-          opt.value = v;
-          opt.textContent = v;
-          selectElem.appendChild(opt);
-        });
-      }
-
-      fillSelect(adaptFilter, adaptTypes);
-      fillSelect(seHazardFilter, seHazards);
-      fillSelect(swHazardFilter, swHazards);
-      fillSelect(resourceFilter, resourceTypes);
-    }
-
-    function renderTable(rows) {
-      dataBody.innerHTML = "";
-
-      if (!rows || rows.length === 0) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 6;
-        td.textContent = "No matching records.";
-        tr.appendChild(td);
-        dataBody.appendChild(tr);
-        countText.textContent = "0 records found.";
-        return;
-      }
-
-      rows.forEach(row => {
-  const tr = document.createElement("tr");
-
-  // Concept
-  const conceptTd = document.createElement("td");
-  conceptTd.setAttribute("data-label", "Concept");
-  conceptTd.textContent = row.GENERAL_CONCEPT || "";
-  tr.appendChild(conceptTd);
-
-  // Strategy
-  const strategyTd = document.createElement("td");
-  strategyTd.setAttribute("data-label", "Strategy");
-  strategyTd.textContent = row.STRATEGIES || "";
-  tr.appendChild(strategyTd);
-
-  // Hazards
-  const hazardsTd = document.createElement("td");
-  hazardsTd.setAttribute("data-label", "Hazards");
-  const seList = normalizeListField(row.SE_HAZARDS);
-  const swList = normalizeListField(row.SW_HAZARDS);
-
-  if (seList.length === 0 && swList.length === 0) {
-    hazardsTd.textContent = "";
-  } else {
-    seList.forEach(h => {
-      const span = document.createElement("span");
-      span.className = "pill";
-      span.textContent = "SE: " + h;
-      hazardsTd.appendChild(span);
-    });
-    swList.forEach(h => {
-      const span = document.createElement("span");
-      span.className = "pill";
-      span.textContent = "SW: " + h;
-      hazardsTd.appendChild(span);
+    [...values].sort().forEach(v => {
+      const opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = v;
+      selectElem.appendChild(opt);
     });
   }
-  tr.appendChild(hazardsTd);
 
-  // Resource Type
-  const resourceTd = document.createElement("td");
-  resourceTd.setAttribute("data-label", "Resource Type");
-  resourceTd.textContent = row.RESOURCE_TYPE || "";
-  tr.appendChild(resourceTd);
+  fillSelect(adaptFilter, adaptTypes);
+  fillSelect(seHazardFilter, seHazards);
+  fillSelect(swHazardFilter, swHazards);
+  fillSelect(resourceFilter, resourceTypes);
+}
 
-  // Description
-  const descTd = document.createElement("td");
-  descTd.setAttribute("data-label", "Description");
-  descTd.textContent = row.DESCRIPTION || "";
-  tr.appendChild(descTd);
+// Render table rows (desktop + mobile-card friendly)
+function renderTable(rows) {
+  dataBody.innerHTML = "";
 
-  // Citation / Case Study
-  const caseTd = document.createElement("td");
-  caseTd.setAttribute("data-label", "Citation / Case Study");
-  const parts = [];
+  if (!rows || rows.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 6;
+    td.textContent = "No matching records.";
+    tr.appendChild(td);
+    dataBody.appendChild(tr);
+    countText.textContent = "0 records found.";
+    return;
+  }
 
-  if (row.CASE_STUDY) parts.push(row.CASE_STUDY);
-  if (row.CITATION) parts.push(row.CITATION);
+  rows.forEach(row => {
+    const tr = document.createElement("tr");
 
-  caseTd.innerHTML = parts.length
-    ? '<span class="small">' + parts.join(" — ") + "</span>"
-    : "";
-  tr.appendChild(caseTd);
+    // Concept
+    const conceptTd = document.createElement("td");
+    conceptTd.setAttribute("data-label", "Concept");
+    conceptTd.textContent = row.GENERAL_CONCEPT || "";
+    tr.appendChild(conceptTd);
 
-  dataBody.appendChild(tr);
-});
+    // Strategy
+    const strategyTd = document.createElement("td");
+    strategyTd.setAttribute("data-label", "Strategy");
+    strategyTd.textContent = row.STRATEGIES || "";
+    tr.appendChild(strategyTd);
 
+    // Hazards
+    const hazardsTd = document.createElement("td");
+    hazardsTd.setAttribute("data-label", "Hazards");
+    const seList = normalizeListField(row.SE_HAZARDS);
+    const swList = normalizeListField(row.SW_HAZARDS);
+
+    if (seList.length === 0 && swList.length === 0) {
+      hazardsTd.textContent = "";
+    } else {
+      seList.forEach(h => {
+        const span = document.createElement("span");
+        span.className = "pill";
+        span.textContent = "SE: " + h;
+        hazardsTd.appendChild(span);
       });
-
-      countText.textContent =
-        rows.length + " record" + (rows.length === 1 ? "" : "s") + " found.";
+      swList.forEach(h => {
+        const span = document.createElement("span");
+        span.className = "pill";
+        span.textContent = "SW: " + h;
+        hazardsTd.appendChild(span);
+      });
     }
+    tr.appendChild(hazardsTd);
 
-   function applyFilters() {
+    // Resource Type
+    const resourceTd = document.createElement("td");
+    resourceTd.setAttribute("data-label", "Resource Type");
+    resourceTd.textContent = row.RESOURCE_TYPE || "";
+    tr.appendChild(resourceTd);
+
+    // Description
+    const descTd = document.createElement("td");
+    descTd.setAttribute("data-label", "Description");
+    descTd.textContent = row.DESCRIPTION || "";
+    tr.appendChild(descTd);
+
+    // Citation / Case Study
+    const caseTd = document.createElement("td");
+    caseTd.setAttribute("data-label", "Citation / Case Study");
+    const parts = [];
+    if (row.CASE_STUDY) parts.push(row.CASE_STUDY);
+    if (row.CITATION) parts.push(row.CITATION);
+
+    caseTd.innerHTML = parts.length
+      ? '<span class="small">' + parts.join(" — ") + "</span>"
+      : "";
+    tr.appendChild(caseTd);
+
+    dataBody.appendChild(tr);
+  });
+
+  countText.textContent =
+    rows.length + " record" + (rows.length === 1 ? "" : "s") + " found.";
+}
+
+// Apply filters + search
+function applyFilters() {
   const q = searchInput.value.trim().toLowerCase();
   const adapt = adaptFilter.value;
   const seHazard = seHazardFilter.value;
@@ -9142,25 +9148,26 @@
   renderTable(filtered);
 }
 
+// Initialize on page load
+function init() {
+  if (!RAW_DATA || RAW_DATA.length === 0) {
+    countText.textContent = "No data loaded yet.";
+    renderTable([]);
+    return;
+  }
 
-    function init() {
-      if (!RAW_DATA || RAW_DATA.length === 0) {
-        countText.textContent = "No data loaded yet.";
-        renderTable([]);
-        return;
-      }
+  buildFilterOptions();
+  renderTable(RAW_DATA);
 
-      buildFilterOptions();
-      renderTable(RAW_DATA);
+  searchInput.addEventListener("input", applyFilters);
+  adaptFilter.addEventListener("change", applyFilters);
+  seHazardFilter.addEventListener("change", applyFilters);
+  swHazardFilter.addEventListener("change", applyFilters);
+  resourceFilter.addEventListener("change", applyFilters);
+}
 
-      searchInput.addEventListener("input", applyFilters);
-      adaptFilter.addEventListener("change", applyFilters);
-      seHazardFilter.addEventListener("change", applyFilters);
-      swHazardFilter.addEventListener("change", applyFilters);
-      resourceFilter.addEventListener("change", applyFilters);
-    }
+init();
 
-    init();
   </script>
 </body>
 </html>
