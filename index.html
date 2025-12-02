@@ -136,11 +136,62 @@
         white-space: nowrap;
       }
     }
+/* ----- MOBILE VIEW (phone layout) ----- */
 @media (max-width: 640px) {
-  body {
-    font-size: 14px;
+
+  /* Allow table text to wrap on cards */
+  table {
+    white-space: normal;
+    overflow-x: visible;
+    font-size: 0.75rem;
   }
 
+  /* Hide table header */
+  table thead {
+    display: none;
+  }
+
+  /* Each row becomes a "card" */
+  table tr {
+    display: block;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  /* Each cell becomes a labeled row */
+  table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 0.85rem;
+    border: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  /* Remove border on last item inside the card */
+  table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Label on the left side */
+  table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #4b5563;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* Ensure "pill" tags wrap nicely */
+  .pill {
+    font-size: 0.7rem;
+    margin: 0.25rem 0.25rem 0 0;
+  }
+
+  /* Header / card spacing adjustments */
   header {
     padding: 0.9rem 1rem;
   }
@@ -164,6 +215,7 @@
     box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
   }
 
+  /* Stack filter controls */
   .controls {
     flex-direction: column;
     align-items: stretch;
@@ -180,65 +232,11 @@
     border-radius: 999px;
   }
 
-  table {
-    font-size: 0.75rem;
-  }
-
-  th,
-  td {
-    padding: 0.35rem 0.4rem;
-  }
-
   .meta {
     font-size: 0.7rem;
   }
-}/* ----- MOBILE CARD LAYOUT ----- */
-@media (max-width: 640px) {
-
-  /* Hide the table header on mobile */
-  table thead {
-    display: none;
-  }
-
-  /* Each row becomes a card */
-  table tr {
-    display: block;
-    margin-bottom: 1rem;
-    padding: 0.75rem 1rem;
-    background: #ffffff;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-
-  table td {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0;
-    font-size: 0.85rem;
-    border: none;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  /* Remove last line divider */
-  table td:last-child {
-    border-bottom: none;
-  }
-
-  /* Label appears on left (in bold) */
-  table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #4b5563;
-    margin-right: 1rem;
-    flex-shrink: 0;
-  }
-
-  /* Make pills wrap nicely */
-  .pill {
-    font-size: 0.7rem;
-    margin: 0.25rem 0.25rem 0 0;
-  }
 }
+
 
 
 
@@ -9026,58 +9024,72 @@
       }
 
       rows.forEach(row => {
-        const tr = document.createElement("tr");
+  const tr = document.createElement("tr");
 
-        const conceptTd = document.createElement("td");
-        conceptTd.textContent = row.GENERAL_CONCEPT || "";
-        tr.appendChild(conceptTd);
+  // Concept
+  const conceptTd = document.createElement("td");
+  conceptTd.setAttribute("data-label", "Concept");
+  conceptTd.textContent = row.GENERAL_CONCEPT || "";
+  tr.appendChild(conceptTd);
 
-        const strategyTd = document.createElement("td");
-        strategyTd.textContent = row.STRATEGIES || "";
-        tr.appendChild(strategyTd);
+  // Strategy
+  const strategyTd = document.createElement("td");
+  strategyTd.setAttribute("data-label", "Strategy");
+  strategyTd.textContent = row.STRATEGIES || "";
+  tr.appendChild(strategyTd);
 
-        const hazardsTd = document.createElement("td");
-        const seList = normalizeListField(row.SE_HAZARDS);
-        const swList = normalizeListField(row.SW_HAZARDS);
+  // Hazards
+  const hazardsTd = document.createElement("td");
+  hazardsTd.setAttribute("data-label", "Hazards");
+  const seList = normalizeListField(row.SE_HAZARDS);
+  const swList = normalizeListField(row.SW_HAZARDS);
 
-        if (seList.length === 0 && swList.length === 0) {
-          hazardsTd.textContent = "";
-        } else {
-          seList.forEach(h => {
-            const span = document.createElement("span");
-            span.className = "pill";
-            span.textContent = "SE: " + h;
-            hazardsTd.appendChild(span);
-          });
-          swList.forEach(h => {
-            const span = document.createElement("span");
-            span.className = "pill";
-            span.textContent = "SW: " + h;
-            hazardsTd.appendChild(span);
-          });
-        }
-        tr.appendChild(hazardsTd);
+  if (seList.length === 0 && swList.length === 0) {
+    hazardsTd.textContent = "";
+  } else {
+    seList.forEach(h => {
+      const span = document.createElement("span");
+      span.className = "pill";
+      span.textContent = "SE: " + h;
+      hazardsTd.appendChild(span);
+    });
+    swList.forEach(h => {
+      const span = document.createElement("span");
+      span.className = "pill";
+      span.textContent = "SW: " + h;
+      hazardsTd.appendChild(span);
+    });
+  }
+  tr.appendChild(hazardsTd);
 
-        const resourceTd = document.createElement("td");
-        resourceTd.textContent = row.RESOURCE_TYPE || "";
-        tr.appendChild(resourceTd);
+  // Resource Type
+  const resourceTd = document.createElement("td");
+  resourceTd.setAttribute("data-label", "Resource Type");
+  resourceTd.textContent = row.RESOURCE_TYPE || "";
+  tr.appendChild(resourceTd);
 
-        const descTd = document.createElement("td");
-        descTd.textContent = row.DESCRIPTION || "";
-        tr.appendChild(descTd);
+  // Description
+  const descTd = document.createElement("td");
+  descTd.setAttribute("data-label", "Description");
+  descTd.textContent = row.DESCRIPTION || "";
+  tr.appendChild(descTd);
 
-        const caseTd = document.createElement("td");
-        const parts = [];
+  // Citation / Case Study
+  const caseTd = document.createElement("td");
+  caseTd.setAttribute("data-label", "Citation / Case Study");
+  const parts = [];
 
-        if (row.CASE_STUDY) parts.push(row.CASE_STUDY);
-        if (row.CITATION) parts.push(row.CITATION);
+  if (row.CASE_STUDY) parts.push(row.CASE_STUDY);
+  if (row.CITATION) parts.push(row.CITATION);
 
-        caseTd.innerHTML = parts.length
-          ? '<span class="small">' + parts.join(" — ") + "</span>"
-          : "";
-        tr.appendChild(caseTd);
+  caseTd.innerHTML = parts.length
+    ? '<span class="small">' + parts.join(" — ") + "</span>"
+    : "";
+  tr.appendChild(caseTd);
 
-        dataBody.appendChild(tr);
+  dataBody.appendChild(tr);
+});
+
       });
 
       countText.textContent =
