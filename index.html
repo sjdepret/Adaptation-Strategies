@@ -129,6 +129,63 @@
       white-space: nowrap;
     }
 
+/* MOBILE FIX — text wraps, table stays readable */
+@media (max-width: 800px) {
+  table {
+    display: block;
+    overflow-x: auto;     /* allow horizontal scroll if needed */
+    white-space: normal;  /* <-- wrapping restored */
+  }
+}
+
+/* Mobile card layout for very small screens */
+@media (max-width: 640px) {
+
+  /* hide table header on mobile */
+  table thead {
+    display: none;
+  }
+
+  /* each row becomes a card */
+  table tr {
+    display: block;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  /* each cell becomes a labeled row */
+  table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 0.85rem;
+    border: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  table td:last-child {
+    border-bottom: none;
+  }
+
+  table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #4b5563;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* pill styling on mobile */
+  .pill {
+    font-size: 0.7rem;
+    margin: 0.25rem 0.25rem 0 0;
+  }
+}
+
+
     }
   </style>
 </head>
