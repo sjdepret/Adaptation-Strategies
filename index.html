@@ -8990,19 +8990,14 @@ function buildFilterOptions() {
     }
   });
 
-  function fillSelect(selectElem, values) {
-    // keep the first option (the “All …” one)
-    const first = selectElem.firstElementChild;
-    selectElem.innerHTML = "";
-    if (first) selectElem.appendChild(first);
-
-    [...values].sort().forEach(v => {
-      const opt = document.createElement("option");
-      opt.value = v;
-      opt.textContent = v;
-      selectElem.appendChild(opt);
-    });
-  }
+function fillSelect(selectElem, values) {
+  [...values].sort().forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v;
+    opt.textContent = v;
+    selectElem.appendChild(opt);
+  });
+}
 
   fillSelect(adaptFilter, adaptTypes);
   fillSelect(seHazardFilter, seHazards);
