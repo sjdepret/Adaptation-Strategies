@@ -133,14 +133,6 @@
     }
 
 /* MOBILE FIX — text wraps, table stays readable */
-@media (max-width: 800px) {
-  table {
-    display: block;
-    overflow-x: auto;     /* allow horizontal scroll if needed */
-    white-space: normal;  /* <-- wrapping restored */
-  }
-}
-
 /* Mobile card layout for very small screens */
 @media (max-width: 640px) {
 
@@ -157,36 +149,57 @@
     background: #ffffff;
     border-radius: 0.75rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+    /* ensure full wrapping */
+    white-space: normal !important;
   }
 
   /* each cell becomes a labeled row */
   table td {
-    display: flex;
-    justify-content: space-between;
+    display: block;                 /* stack label + content vertically */
+    text-align: left !important;    /* LEFT ALIGN all text */
     padding: 0.5rem 0;
-    font-size: 0.85rem;
     border: none;
     border-bottom: 1px solid #e5e7eb;
+
+    white-space: normal !important; /* allow wrapping */
+    overflow-wrap: break-word;      /* break long words */
   }
 
   table td:last-child {
     border-bottom: none;
   }
 
+  /* Label shown above content */
   table td::before {
     content: attr(data-label);
+    display: block;
+    margin-bottom: 0.25rem;
     font-weight: 600;
     color: #4b5563;
-    margin-right: 1rem;
-    flex-shrink: 0;
+    font-size: 0.75rem;
+    text-align: left;
+  }
+
+  /* reduce text size inside cells */
+  table td,
+  table td span,
+  table td p,
+  table td div {
+    font-size: 0.75rem !important;
+    line-height: 1.25;
+    text-align: left !important;
   }
 
   /* pill styling on mobile */
   .pill {
-    font-size: 0.7rem;
+    display: inline-block;
+    font-size: 0.7rem !important;
     margin: 0.25rem 0.25rem 0 0;
+    white-space: normal !important;
   }
 }
+
 
 
     }
