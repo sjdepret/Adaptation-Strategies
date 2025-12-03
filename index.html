@@ -94,18 +94,21 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.85rem;
+      table-layout: fixed;
     }
 
     thead {
       background: #e5e7eb;
     }
 
-    th, td {
-      text-align: left;
-      padding: 0.45rem 0.55rem;
-      border-bottom: 1px solid #e5e7eb;
-      vertical-align: top;
-    }
+	th, td {
+  	text-align: left;
+ 	 padding: 0.45rem 0.55rem;
+ 	 border-bottom: 1px solid #e5e7eb;
+  	vertical-align: top;
+ 	 word-wrap: break-word;    /* allow wrapping on long words */
+ 	 word-break: break-word;   /* last-resort wrap if no spaces */
+	}
 
     tbody tr:nth-child(even) {
       background: #f9fafb;
